@@ -1,0 +1,9 @@
+{
+  "name": "ghostship-bridge",
+  "version": "1.6.0",
+  "description": "Ghostship's bridge inside Claude Code: a tabbed pane (queue, tasks, crew, log, menu) with a key for every action, approvals and decisions from the pane, copyable commands, the voyage line and live band, footer button, alerts with ping, step line, Claude plan 5h/7d limits, context keeper (handoff, clear, resume), secret and risk guard, heartbeat and logbook.",
+  "author": {
+    "name": "Ghostship"
+  },
+  "types": "./types/index.d.ts"
+}

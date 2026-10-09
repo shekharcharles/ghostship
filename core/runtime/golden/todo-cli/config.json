@@ -1,0 +1,1 @@
+{ "commands": { "test": "node scripts/unit.mjs", "acceptance": "node scripts/acc.mjs {files}", "lint": "node scripts/lint.mjs" } }

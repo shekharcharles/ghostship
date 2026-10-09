@@ -1,0 +1,8 @@
+# Generated / installed-only artifacts (install.mjs creates these in ~/.ghostship)
+node_modules/
+core.new/
+core.upgrading/
+**/.prev/
+core/.hash
+.DS_Store
+*.log

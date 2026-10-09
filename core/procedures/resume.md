@@ -1,0 +1,13 @@
+# /ghostship resume — after a crash, `/clear`, compaction or a new day
+
+`GS` = `node .ghostship/core/runtime/gs.mjs`. State on disk is the truth. Never rely on what you remember from an earlier session.
+
+1. `GS audit`. If it fails, show the problems and stop: the owner decides.
+2. If `.ghostship/handoff/HANDOFF.md` exists, read it (what you were doing, the exact next step), then move it to `.ghostship/handoff/done-<date>.md`. The session start may report a core upgrade it applied at this safe point; mention it in one line.
+3. `GS asks`: this is everything waiting for the owner. **Surface it to the owner wherever they are.** In **chat** mode (the default) list each open ask in chat with its options and let the owner answer or approve there; their words come back as the quote for the matching `GS … approve --quote "…"`. In **bridge**/**terminal** mode it also waits in the Bridge pane (`/gs-bridge`) or their shell — but a pane the owner may not be looking at (mobile, a cloud client) is not a reason to go silent: name the pending asks in chat either way. The answers reach you as "My responses to the Ghostship asks: …". Never answer or approve them yourself.
+4. `GS autopilot status`. If the headless runner is running, it drives the loop: report in one line and stop; this session only watches.
+5. `GS next`, and do what it says (`build.md`, "The loop"). It already knows about an interrupted attempt: a task left BUILDING gets a fresh builder for the same attempt (add to its brief: "a previous builder was interrupted; inspect the branch first"); a task left JUDGING needs `GS task reissue <ID>` (the token died with the session, by design) and a fresh judge; a run `lost` its supervisor → check the branch, `GS run clear`, dispatch again. The stage-specific details are in `new.md` / `adopt.md` (interview), `design.md`, `acceptance.md`, `plan.md`, `release.md`.
+
+If `GS next` lands on an owner approval gate (`prd.approve`, a release packet) and the artifact was produced in an earlier session the owner has not seen this one — e.g. before a `/clear` or a compaction — **show the artifact before you point at the gate**: the PRD as in `new.md` step 4 (headings + scope, features, success measures), a release packet as in `release.md`, and offer the full document. Showing something for the owner to review is not answering an ask, so it does not conflict with step 3 — do not just repeat "approve it in the Bridge pane".
+
+Report in ≤5 lines: stage, active task, next step. Then continue. In autopilot/full, do not ask the owner anything: keep running `GS next` until it says `owner` (STOP 1 in autopilot, STOP 2, a pause) or `done`.
