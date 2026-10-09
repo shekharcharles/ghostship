@@ -22,6 +22,7 @@ import { writeExplorer } from './lib/explorer.mjs';
 import * as MEM from './lib/memory.mjs';
 import * as LEARN from './lib/learn.mjs';
 import * as UP from './lib/upgrade.mjs';
+import * as UPD from './lib/update.mjs';
 import * as MIG from './lib/migrate.mjs';
 import * as GH from './lib/github.mjs';
 import * as ASK from './lib/asks.mjs';
@@ -80,6 +81,7 @@ const HELP = `Ghostship ${VERSION} — gs <command>
   memory add <memory|decision|failed|lesson|baseline> "…" [--task <id>] | search "…" | promote "…"
   migrate list | apply [--items 1,3|all] [--keep 4] [--archive 5] [--quote "…"]   other tools' files → docs/archive/ (nothing deleted)
   upgrade check | apply [--from DIR] | rollback      move this project to the installed core at a safe point
+  update check | apply [--force]         update Ghostship itself from its public GitHub repo, then gs upgrade apply per project
   github sync | status                   mirror tasks, release PR and releases to GitHub (tracker github|both)
   ask --kind do|answer|choose --title "…" [--why "…"] [--done-when "…"] [--option "…"]… [--command "…"]   hand the owner something only they can do
   asks [--json] | ask answer <id> --option N|--done|--text "…"|--reject "…" | ask withdraw <id> | asks deliver
@@ -425,6 +427,19 @@ async function main() {
       if (sub === 'check') { const c = UP.check(root, { from: typeof opt.from === 'string' ? opt.from : undefined }); const sp = UP.safePoint(root); return out(json ? { ...c, safe: sp } : `project ${c.project} · installed ${c.available || 'none'}${c.newer ? ' (newer)' : ''}${c.rollback ? ` · rollback to ${c.rollback} kept` : ''} · ${sp.ok ? 'safe point now' : `not now: ${sp.reasons.join('; ')}`}`); }
       if (sub === 'apply') { const r = UP.apply(root, { from: typeof opt.from === 'string' ? opt.from : undefined, force: !!opt.force }); out(json ? r : r.ok ? `Upgraded ${r.from} → ${r.to}. The old core is kept for gs upgrade rollback.` : `Not upgraded: ${r.reason}${r.errors ? `\n- ${r.errors.join('\n- ')}` : ''}`); process.exitCode = r.ok ? 0 : 1; return; }
       if (sub === 'rollback') { const r = UP.rollback(root); out(r.ok ? `Rolled back ${r.from} → ${r.to}.` : `Not rolled back: ${r.reason}`); process.exitCode = r.ok ? 0 : 1; return; }
+      break;
+    }
+    case 'update': {
+      if (sub === 'check') {
+        const c = await UPD.check({});
+        if (c.error) { process.exitCode = 1; return out(json ? c : `update check failed: ${c.error}`); }
+        return out(json ? c : `installed ${c.installed || 'none'} · published ${c.remote} [${c.repo}@${c.branch}] — ${c.newer ? 'newer available: run gs update' : 'up to date'}`);
+      }
+      if (sub === undefined || sub === 'apply') {
+        const r = UPD.apply({ force: !!opt.force });
+        if (!r.ok) { process.exitCode = 1; return out(json ? r : `Not updated: ${r.reason}`); }
+        return out(json ? r : `Updated Ghostship ${r.from || 'none'} → ${r.to} from ${r.repo}@${r.branch}.\nThe old core is kept for rollback. In each project, run \`gs upgrade apply\` at a safe point to adopt it.`);
+      }
       break;
     }
     case 'github': {
